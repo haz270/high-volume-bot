@@ -1,0 +1,63 @@
+2025-09-09 22:18:59,426 [INFO] Starting Volume Bot
+2025-09-09 22:19:14,012 [INFO] BTC/USDT: Buy 17,557, Sell 729,739, Net -712,183
+2025-09-09 22:19:27,013 [INFO] ETH/USDT: Buy 41,763, Sell 395,274, Net -353,511
+2025-09-09 22:19:44,363 [INFO] XRP/USDT: Buy 63,836, Sell 116,913, Net -53,077
+2025-09-09 22:20:15,806 [INFO] AAPL: Buy 0, Sell 0, Net 0
+2025-09-09 22:20:18,409 [ERROR] Stock fetch error MSFT: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:20:18,409 [INFO] MSFT: Buy 0, Sell 0, Net 0
+2025-09-09 22:20:23,959 [ERROR] Stock fetch error GOOG: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:20:23,959 [INFO] GOOG: Buy 0, Sell 0, Net 0
+2025-09-09 22:20:25,504 [ERROR] Stock fetch error GC=F: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:20:25,504 [INFO] GC=F: Buy 0, Sell 0, Net 0
+2025-09-09 22:20:25,530 [INFO] Sleeping 15 minutes...
+2025-09-09 22:35:38,031 [INFO] BTC/USDT: Buy 199,674, Sell 119,933, Net 79,741
+2025-09-09 22:35:45,683 [INFO] ETH/USDT: Buy 257,057, Sell 63,893, Net 193,164
+2025-09-09 22:35:53,620 [INFO] XRP/USDT: Buy 62,460, Sell 773,493, Net -711,032
+2025-09-09 22:35:54,842 [INFO] AAPL: Buy 0, Sell 0, Net 0
+2025-09-09 22:35:56,589 [ERROR] Stock fetch error MSFT: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:35:56,589 [INFO] MSFT: Buy 0, Sell 0, Net 0
+2025-09-09 22:35:59,319 [ERROR] Stock fetch error GOOG: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:35:59,319 [INFO] GOOG: Buy 0, Sell 0, Net 0
+2025-09-09 22:36:01,574 [ERROR] Stock fetch error GC=F: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:36:01,574 [INFO] GC=F: Buy 0, Sell 0, Net 0
+2025-09-09 22:36:01,574 [INFO] Sleeping 15 minutes...
+2025-09-09 22:51:15,001 [INFO] BTC/USDT: Buy 7,243, Sell 224,517, Net -217,274
+2025-09-09 22:51:26,912 [INFO] ETH/USDT: Buy 137,174, Sell 49,089, Net 88,085
+2025-09-09 22:51:40,048 [INFO] XRP/USDT: Buy 51,640, Sell 59,566, Net -7,927
+2025-09-09 22:51:41,613 [ERROR] Stock fetch error AAPL: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:51:41,614 [INFO] AAPL: Buy 0, Sell 0, Net 0
+2025-09-09 22:51:42,978 [ERROR] Stock fetch error MSFT: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:51:42,981 [INFO] MSFT: Buy 0, Sell 0, Net 0
+2025-09-09 22:51:44,087 [ERROR] Stock fetch error GOOG: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:51:44,089 [INFO] GOOG: Buy 0, Sell 0, Net 0
+2025-09-09 22:51:45,266 [ERROR] Stock fetch error GC=F: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-09 22:51:45,266 [INFO] GC=F: Buy 0, Sell 0, Net 0
+2025-09-09 22:51:45,269 [INFO] Sleeping 15 minutes...
+2025-09-13 16:19:36,897 [INFO] Starting Volume Bot
+2025-09-13 16:20:12,228 [ERROR] Crypto fetch error BTC/USDT: binance GET https://api.binance.com/api/v3/exchangeInfo
+2025-09-13 16:20:12,228 [INFO] BTC/USDT: Buy 0, Sell 0, Net 0
+2025-09-13 16:20:56,435 [ERROR] Crypto fetch error ETH/USDT: binance GET https://fapi.binance.com/fapi/v1/exchangeInfo
+2025-09-13 16:20:56,451 [INFO] ETH/USDT: Buy 0, Sell 0, Net 0
+2025-09-13 16:21:47,191 [ERROR] Crypto fetch error XRP/USDT: binance GET https://api.binance.com/api/v3/aggTrades?symbol=XRPUSDT&limit=200
+2025-09-13 16:21:47,191 [INFO] XRP/USDT: Buy 0, Sell 0, Net 0
+2025-09-13 16:21:55,143 [ERROR] Stock fetch error AAPL: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:21:55,143 [INFO] AAPL: Buy 0, Sell 0, Net 0
+2025-09-13 16:21:56,305 [ERROR] Stock fetch error MSFT: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:21:56,311 [INFO] MSFT: Buy 0, Sell 0, Net 0
+2025-09-13 16:21:59,864 [ERROR] Stock fetch error GOOG: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:21:59,864 [INFO] GOOG: Buy 0, Sell 0, Net 0
+2025-09-13 16:22:02,345 [ERROR] Stock fetch error GC=F: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:22:02,345 [INFO] GC=F: Buy 0, Sell 0, Net 0
+2025-09-13 16:22:02,345 [INFO] Sleeping 15 minutes...
+2025-09-13 16:37:15,489 [INFO] BTC/USDT: Buy 256,992, Sell 145,845, Net 111,147
+2025-09-13 16:37:24,977 [INFO] ETH/USDT: Buy 880,550, Sell 224,223, Net 656,328
+2025-09-13 16:37:36,798 [INFO] XRP/USDT: Buy 95,365, Sell 420,298, Net -324,933
+2025-09-13 16:37:41,940 [ERROR] Stock fetch error AAPL: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:37:41,940 [INFO] AAPL: Buy 0, Sell 0, Net 0
+2025-09-13 16:37:43,076 [ERROR] Stock fetch error MSFT: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:37:43,076 [INFO] MSFT: Buy 0, Sell 0, Net 0
+2025-09-13 16:37:47,281 [ERROR] Stock fetch error GOOG: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:37:47,281 [INFO] GOOG: Buy 0, Sell 0, Net 0
+2025-09-13 16:37:48,863 [ERROR] Stock fetch error GC=F: The truth value of a Series is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-13 16:37:48,863 [INFO] GC=F: Buy 0, Sell 0, Net 0
+2025-09-13 16:37:48,863 [INFO] Sleeping 15 minutes...
