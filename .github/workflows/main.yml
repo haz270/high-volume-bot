@@ -27,8 +27,9 @@ jobs:
       - name: Run the bot
         run: |
           python high_volume_bot.py
-          - name: Upload CSV
-   uses: actions/upload-artifact@v3
-   with:
-     name: csv-files
-     path: "*.csv"
+
+      - name: Upload CSV
+        uses: actions/upload-artifact@v3
+        with:
+          name: csv-files
+          path: "*.csv"
