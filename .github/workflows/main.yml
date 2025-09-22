@@ -1,0 +1,29 @@
+name: High Volume Bot
+
+on:
+  schedule:
+    # Runs every 30 minutes; adjust as needed
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # allows manual trigger
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ccxt yfinance pandas numpy requests openpyxl gspread oauth2client twilio multitasking
+
+      - name: Run the bot
+        run: |
+          python high_volume_bot.py
