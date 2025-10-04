@@ -1,5 +1,4 @@
 import os
-import time
 import csv
 import logging
 from datetime import datetime
@@ -7,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 import ccxt
 import yfinance as yf
 import requests
+import pandas as pd
 
 # ================== Logging ==================
 LOG_FILE = "bot.log"
@@ -18,13 +18,11 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # ================== Settings ==================
-REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "0"))  # one-time for GitHub
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # ================== Alerts ==================
 def send_alert(message: str):
-    """Send alerts to Telegram"""
     logger.info(message)
     if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         try:
@@ -34,63 +32,72 @@ def send_alert(message: str):
             logger.error(f"Telegram error: {e}")
 
 # ================== Volume checks ==================
-def check_crypto(symbol="BTC/USDT", limit=200):
+def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=24):
+    """Approximate buy/sell volume using OHLCV candles"""
     exchange = ccxt.binance()
     try:
-        trades = exchange.fetch_trades(symbol, limit=limit)
-        buy_vol = sum(t["amount"] * t["price"] for t in trades if t["side"] == "buy")
-        sell_vol = sum(t["amount"] * t["price"] for t in trades if t["side"] == "sell")
-        return buy_vol, sell_vol
+        ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
+        df = pd.DataFrame(ohlcv, columns=["timestamp","open","high","low","close","volume"])
+        buy_vol = df[df["close"] >= df["open"]]["volume"].sum()
+        sell_vol = df[df["close"] < df["open"]]["volume"].sum()
+        return float(buy_vol), float(sell_vol)
     except Exception as e:
         logger.error(f"Crypto fetch error {symbol}: {e}")
         return 0, 0
 
 def check_stock(symbol="AAPL"):
+    """Approximate buy/sell using tick rule on daily data"""
     try:
-        data = yf.download(symbol, period="2d", interval="1d", progress=False)
-        if len(data) < 2:
+        data = yf.download(symbol, period="3d", interval="1d", progress=False)
+        if data.empty or len(data) < 2:
             return 0, 0
         vol = float(data["Volume"].iloc[-1])
         change = data["Close"].iloc[-1] - data["Close"].iloc[-2]
-        return (vol, 0) if change >= 0 else (0, vol)
+        vol = vol if pd.notna(vol) else 0
+        buy = vol if change >= 0 else 0
+        sell = vol if change < 0 else 0
+        logger.info(f"{symbol}: Volume fetched {vol}, Buy {buy}, Sell {sell}")
+        return buy, sell
     except Exception as e:
         logger.error(f"Stock fetch error {symbol}: {e}")
         return 0, 0
 
 # ================== Save CSV ==================
 def save_csv(rows):
-    filename = f"alerts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    filename = f"alerts_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
     with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["timestamp", "market", "buy_volume", "sell_volume", "net_flow", "message"])
+        writer.writerow(["timestamp","market","buy_volume","sell_volume","net_flow","message"])
         writer.writerows(rows)
+    logger.info(f"CSV saved as {filename}")
     return filename
 
 # ================== Main ==================
 def run_once():
     results = []
 
-    crypto_pairs = ["BTC/USDT", "ETH/USDT", "XRP/USDT", "SOL/USDT", "ADA/USDT", "BNB/USDT", "DOGE/USDT", "LTC/USDT", "DOT/USDT"]
-    forex_pairs = ["EURUSD=X", "GBPUSD=X", "USDJPY=X", "AUDUSD=X", "USDCAD=X", "USDCHF=X", "NZDUSD=X"]
-    commodity_pairs = ["GC=F", "SI=F", "CL=F", "NG=F"]
-    stock_symbols = ["AAPL", "MSFT", "AMZN", "TSLA", "GOOG", "NVDA"]
+    crypto_pairs = ["BTC/USDT","ETH/USDT","XRP/USDT","SOL/USDT","ADA/USDT","BNB/USDT","DOGE/USDT","LTC/USDT","DOT/USDT"]
+    forex_pairs = ["EURUSD=X","GBPUSD=X","USDJPY=X","AUDUSD=X","USDCAD=X","USDCHF=X","NZDUSD=X"]
+    commodity_pairs = ["GC=F","SI=F","CL=F","NG=F"]
+    stock_symbols = ["AAPL","MSFT","AMZN","TSLA","GOOG","NVDA"]
 
+    # --- Crypto ---
     for symbol in crypto_pairs:
         buy, sell = check_crypto(symbol)
         net = buy - sell
-        msg = f"{symbol}: Buy {buy:,.0f}, Sell {sell:,.0f}, Net {net:,.0f}"
+        msg = f"{symbol}: Buy {buy:,.2f}, Sell {sell:,.2f}, Net {net:,.2f}"
         send_alert(msg)
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
+    # --- Stocks / Forex / Commodities ---
     for symbol in forex_pairs + commodity_pairs + stock_symbols:
         buy, sell = check_stock(symbol)
         net = buy - sell
-        msg = f"{symbol}: Buy {buy:,.0f}, Sell {sell:,.0f}, Net {net:,.0f}"
+        msg = f"{symbol}: Buy {buy:,.2f}, Sell {sell:,.2f}, Net {net:,.2f}"
         send_alert(msg)
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
-    filename = save_csv(results)
-    logger.info(f"CSV saved as {filename}")
+    save_csv(results)
 
 if __name__ == "__main__":
     logger.info("Starting Volume Bot")
