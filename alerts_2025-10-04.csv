@@ -1,0 +1,55 @@
+timestamp,market,buy_volume,sell_volume,net_flow,buy_%,sell_%,net_%,trend,message
+2025-10-04T16:44:40.106548,BTC/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.178561,ETH/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.249916,BNB/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.321966,XRP/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.421180,SOL/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.463409,DOGE/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.538864,ADA/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.582228,TRX/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.627060,AVAX/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.800241,DOT/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.900354,LINK/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.945830,MATIC/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:40.989890,SHIB/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.084663,LTC/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.180884,ATOM/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.225339,XLM/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.272109,UNI/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.317032,ICP/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.361273,APT/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.404986,NEAR/USDT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.692111,AAPL,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:41.878001,MSFT,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:42.083444,GOOG,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:42.198304,GC=F,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:42.284114,CL=F,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:42.543055,TSLA,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+2025-10-04T16:44:42.731135,NVDA,0,0,0,0,0,0,⚪,⚪ Buy: 0.0% | Sell: 0.0% | Net: 0.0% | Value: 0
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
+timestamp,market,buy,sell,net,buy_pct,sell_pct,net_pct,trend
