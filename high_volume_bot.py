@@ -1,9 +1,7 @@
 import os
-import time
 import csv
 import logging
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 
 import ccxt
 import yfinance as yf
@@ -13,7 +11,7 @@ import requests
 LOG_FILE = "bot.log"
 logger = logging.getLogger("VolumeBot")
 logger.setLevel(logging.INFO)
-handler = RotatingFileHandler(LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=7)
+handler = logging.FileHandler(LOG_FILE)
 formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -32,7 +30,6 @@ TWILIO_TO = os.getenv("TWILIO_TO")
 
 # ================== Alerts ==================
 def send_alert(message: str):
-    """Send alerts to Telegram, Discord, WhatsApp (Twilio)"""
     logger.info(message)
 
     if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
@@ -58,7 +55,6 @@ def send_alert(message: str):
 
 # ================== Volume check ==================
 def check_crypto(symbol="BTC/USDT", limit=200):
-    """Fetch trades from Binance and split buy vs sell volume"""
     exchange = ccxt.binance()
     try:
         trades = exchange.fetch_trades(symbol, limit=limit)
@@ -70,7 +66,6 @@ def check_crypto(symbol="BTC/USDT", limit=200):
         return 0, 0
 
 def check_stock(symbol="AAPL"):
-    """Approximate buy/sell split using tick rule on daily data"""
     try:
         data = yf.download(symbol, period="2d", interval="1d", progress=False)
         if len(data) < 2:
@@ -88,7 +83,7 @@ def check_stock(symbol="AAPL"):
 # ================== Save CSV ==================
 def save_csv(rows, filename=None):
     if not filename:
-        filename = f"alerts_{datetime.now().date()}.csv"
+        filename = f"alerts_{datetime.utcnow().strftime('%Y-%m-%d_%H-%M')}.csv"
     file_exists = os.path.isfile(filename)
     with open(filename, "a", newline="") as f:
         writer = csv.writer(f)
@@ -97,11 +92,11 @@ def save_csv(rows, filename=None):
         for row in rows:
             writer.writerow(row)
 
-# ================== Main Loop ==================
+# ================== Main Run ==================
 def run_once():
     results = []
 
-    # --- Crypto Example
+    # --- Crypto
     for symbol in ["BTC/USDT", "ETH/USDT", "XRP/USDT"]:
         buy, sell = check_crypto(symbol)
         net = buy - sell
@@ -109,8 +104,8 @@ def run_once():
         send_alert(msg)
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
-    # --- Stocks / Commodities Example
-    for symbol in ["AAPL", "MSFT", "GOOG", "GC=F"]:  # GC=F = Gold futures
+    # --- Stocks / Commodities
+    for symbol in ["AAPL", "MSFT", "GOOG", "GC=F"]:
         buy, sell = check_stock(symbol)
         net = buy - sell
         msg = f"{symbol}: Buy {buy:,.0f}, Sell {sell:,.0f}, Net {net:,.0f}"
@@ -118,12 +113,9 @@ def run_once():
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
     save_csv(results)
+    print("✅ Bot run completed. Exiting.")
 
+# ================== Entry Point ==================
 if __name__ == "__main__":
     logger.info("Starting Volume Bot")
-    while True:
-        run_once()
-        if REFRESH_MINUTES <= 0:
-            break
-        logger.info(f"Sleeping {REFRESH_MINUTES} minutes...")
-        time.sleep(REFRESH_MINUTES * 60)
+    run_once()
