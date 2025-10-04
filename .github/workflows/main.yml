@@ -1,9 +1,12 @@
 name: High Volume Bot
 
 on:
-  schedule:
-    - cron: '*/30 * * * *' # runs every 30 minutes
   workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"  # every 30 minutes
+
+permissions:
+  contents: write   # ✅ allows the workflow to push new files
 
 jobs:
   run-bot:
