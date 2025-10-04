@@ -12,7 +12,7 @@ import pandas as pd
 LOG_FILE = "bot.log"
 logger = logging.getLogger("VolumeBot")
 logger.setLevel(logging.INFO)
-handler = RotatingFileHandler(LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=7)
+handler = RotatingFileHandler(LOG_FILE, maxBytes=5*1024*1024, backupCount=7)
 formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -20,6 +20,9 @@ logger.addHandler(handler)
 # ================== Settings ==================
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+BINANCE_API_KEY = os.getenv("BINANCE_API_KEY")
+BINANCE_API_SECRET = os.getenv("BINANCE_API_SECRET")
 
 # ================== Alerts ==================
 def send_alert(message: str):
@@ -31,32 +34,35 @@ def send_alert(message: str):
         except Exception as e:
             logger.error(f"Telegram error: {e}")
 
-# ================== Volume checks ==================
-def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=24):
-    """Approximate buy/sell volume using OHLCV candles"""
-    exchange = ccxt.binance()
+# ================== Crypto Volume ==================
+def check_crypto(symbol="BTC/USDT", limit=200):
+    """Fetch real buy/sell volume using Binance trades"""
     try:
-        ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
-        df = pd.DataFrame(ohlcv, columns=["timestamp","open","high","low","close","volume"])
-        buy_vol = df[df["close"] >= df["open"]]["volume"].sum()
-        sell_vol = df[df["close"] < df["open"]]["volume"].sum()
+        exchange = ccxt.binance({
+            "apiKey": BINANCE_API_KEY,
+            "secret": BINANCE_API_SECRET,
+            "enableRateLimit": True
+        })
+        trades = exchange.fetch_trades(symbol, limit=limit)
+        buy_vol = sum(t["amount"] * t["price"] for t in trades if t["side"] == "buy")
+        sell_vol = sum(t["amount"] * t["price"] for t in trades if t["side"] == "sell")
         return float(buy_vol), float(sell_vol)
     except Exception as e:
         logger.error(f"Crypto fetch error {symbol}: {e}")
         return 0, 0
 
+# ================== Stock / Forex / Commodity Volume ==================
 def check_stock(symbol="AAPL"):
-    """Approximate buy/sell using tick rule on daily data"""
+    """Use yfinance; approximate buy/sell with tick rule"""
     try:
         data = yf.download(symbol, period="3d", interval="1d", progress=False)
         if data.empty or len(data) < 2:
             return 0, 0
-        vol = float(data["Volume"].iloc[-1])
+        vol = float(data["Volume"].iloc[-1]) if pd.notna(data["Volume"].iloc[-1]) else 0
         change = data["Close"].iloc[-1] - data["Close"].iloc[-2]
-        vol = vol if pd.notna(vol) else 0
         buy = vol if change >= 0 else 0
         sell = vol if change < 0 else 0
-        logger.info(f"{symbol}: Volume fetched {vol}, Buy {buy}, Sell {sell}")
+        logger.info(f"{symbol}: Buy {buy}, Sell {sell}, Total Volume {vol}")
         return buy, sell
     except Exception as e:
         logger.error(f"Stock fetch error {symbol}: {e}")
@@ -76,10 +82,10 @@ def save_csv(rows):
 def run_once():
     results = []
 
-    crypto_pairs = ["BTC/USDT","ETH/USDT","XRP/USDT","SOL/USDT","ADA/USDT","BNB/USDT","DOGE/USDT","LTC/USDT","DOT/USDT"]
-    forex_pairs = ["EURUSD=X","GBPUSD=X","USDJPY=X","AUDUSD=X","USDCAD=X","USDCHF=X","NZDUSD=X"]
-    commodity_pairs = ["GC=F","SI=F","CL=F","NG=F"]
-    stock_symbols = ["AAPL","MSFT","AMZN","TSLA","GOOG","NVDA"]
+    crypto_pairs = ["BTC/USDT","ETH/USDT","XRP/USDT","SOL/USDT","ADA/USDT"]
+    forex_pairs = ["EURUSD=X","GBPUSD=X","USDJPY=X","AUDUSD=X"]
+    commodity_pairs = ["GC=F","SI=F","CL=F"]
+    stock_symbols = ["AAPL","MSFT","AMZN"]
 
     # --- Crypto ---
     for symbol in crypto_pairs:
