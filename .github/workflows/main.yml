@@ -3,10 +3,10 @@ name: High Volume Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"  # every 30 minutes
+    - cron: "*/30 * * * *"
 
 permissions:
-  contents: write   # ✅ allows the workflow to push new files
+  contents: write  # allows the workflow to commit CSV files
 
 jobs:
   run-bot:
@@ -28,9 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install ccxt yfinance pandas numpy requests openpyxl gspread oauth2client twilio multitasking
 
-      - name: Run the bot
+      - name: Run the bot with debug logs
         run: |
-          python high_volume_bot.py
+          set -o pipefail
+          python high_volume_bot.py | tee bot_logs.txt  # output printed live and saved to file
 
       - name: Commit CSV to repo
         run: |
