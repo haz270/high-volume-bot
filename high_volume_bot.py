@@ -1,12 +1,11 @@
 import os
+import time
 import csv
 import logging
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 import ccxt
 import yfinance as yf
 import requests
-import pandas as pd
 
 # ================== Logging ==================
 LOG_FILE = "bot.log"
@@ -185,5 +184,10 @@ def run_once():
     save_csv(results)
 
 if __name__ == "__main__":
-    logger.info("Starting Volume Bot")
-    run_once()
+    logger.info("Starting High Volume Bot")
+    while True:
+        run_once()
+        if REFRESH_MINUTES <= 0:
+            break
+        logger.info(f"Sleeping {REFRESH_MINUTES} minutes...")
+        time.sleep(REFRESH_MINUTES * 60)
