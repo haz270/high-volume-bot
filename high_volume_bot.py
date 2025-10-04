@@ -18,7 +18,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # ================== Settings ==================
-REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "0"))  # run once for GitHub
+REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "0"))  # one-time for GitHub
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
@@ -75,7 +75,6 @@ def run_once():
     commodity_pairs = ["GC=F", "SI=F", "CL=F", "NG=F"]
     stock_symbols = ["AAPL", "MSFT", "AMZN", "TSLA", "GOOG", "NVDA"]
 
-    # --- Crypto ---
     for symbol in crypto_pairs:
         buy, sell = check_crypto(symbol)
         net = buy - sell
@@ -83,7 +82,6 @@ def run_once():
         send_alert(msg)
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
-    # --- Forex, Commodities, Stocks ---
     for symbol in forex_pairs + commodity_pairs + stock_symbols:
         buy, sell = check_stock(symbol)
         net = buy - sell
