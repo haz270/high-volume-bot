@@ -7,41 +7,56 @@ import ccxt
 import yfinance as yf
 import requests
 
-# ================== Logging ==================
-LOG_FILE = "bot.log"
-logger = logging.getLogger("VolumeBot")
-logger.setLevel(logging.INFO)
-handler = logging.FileHandler(LOG_FILE)
-formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
 # ================== Settings ==================
 REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "15"))
+DEBUG = True  # Set True to print debug logs to console without sending alerts
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
-
 TWILIO_SID = os.getenv("TWILIO_SID")
 TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
 TWILIO_FROM = os.getenv("TWILIO_FROM")
 TWILIO_TO = os.getenv("TWILIO_TO")
 
+# ================== Logging ==================
+logger = logging.getLogger("VolumeBot")
+logger.setLevel(logging.INFO)
+
+# Log to file
+file_handler = logging.FileHandler("bot.log")
+file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+
+# Log to console
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(file_formatter)
+logger.addHandler(console_handler)
+
 # ================== Alerts ==================
 def send_alert(message: str):
     logger.info(message)
+    if DEBUG:
+        print(message)
+        return  # Skip sending alerts in debug mode
+
+    # Telegram
     if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         try:
             url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-            requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": message})
+            requests.post(url, json={"chat_id": TELEGRAM_CHAT_ID, "text": message}, timeout=5)
         except Exception as e:
             logger.error(f"Telegram error: {e}")
+
+    # Discord
     if DISCORD_WEBHOOK:
         try:
-            requests.post(DISCORD_WEBHOOK, json={"content": message})
+            requests.post(DISCORD_WEBHOOK, json={"content": message}, timeout=5)
         except Exception as e:
             logger.error(f"Discord error: {e}")
+
+    # WhatsApp via Twilio
     if TWILIO_SID and TWILIO_TOKEN and TWILIO_FROM and TWILIO_TO:
         try:
             from twilio.rest import Client
@@ -51,13 +66,11 @@ def send_alert(message: str):
             logger.error(f"Twilio error: {e}")
 
 # ================== Crypto Check ==================
-def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=24):
-    exchange = ccxt.binance()  # Public endpoint
+def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12):
+    exchange = ccxt.binance()
     try:
         logger.info(f"Fetching crypto data: {symbol}")
         candles = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
-        if not candles:
-            return 0, 0
         buy_vol, sell_vol = 0, 0
         for c in candles:
             open_, high, low, close, volume = c[1], c[2], c[3], c[4], c[5]
@@ -79,7 +92,7 @@ def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=24):
 def check_stock(symbol="AAPL"):
     try:
         logger.info(f"Fetching stock data: {symbol}")
-        data = yf.download(symbol, period="2d", interval="1d", progress=False)
+        data = yf.download(symbol, period="2d", interval="1d", progress=False, timeout=10)
         if len(data) < 2:
             return 0, 0
         vol = float(data["Volume"].iloc[-1])
@@ -107,7 +120,7 @@ def save_csv(rows, filename=None):
         for row in rows:
             writer.writerow(row)
 
-# ================== Main Run ==================
+# ================== Main Loop ==================
 def run_once():
     results = []
 
@@ -123,10 +136,12 @@ def run_once():
 
     for symbol in all_symbols:
         try:
+            logger.info(f"Fetching data for {symbol}...")
             if "/USDT" in symbol:
                 buy, sell = check_crypto(symbol)
             else:
                 buy, sell = check_stock(symbol)
+            logger.info(f"{symbol} fetched: buy={buy}, sell={sell}")
         except Exception as e:
             logger.error(f"Error fetching {symbol}: {e}")
             buy = sell = 0
@@ -159,26 +174,19 @@ def run_once():
             "trend": trend_emoji
         })
 
-    # Filter strong signals
-    strong_bullish = [r for r in results if r["trend"] == "🟢"]
-    strong_bearish = [r for r in results if r["trend"] == "🔴"]
+    # Top 5 bullish/bearish
+    strong_bullish = sorted([r for r in results if r["trend"] == "🟢"], key=lambda x: x["buy_pct"], reverse=True)[:5]
+    strong_bearish = sorted([r for r in results if r["trend"] == "🔴"], key=lambda x: x["sell_pct"], reverse=True)[:5]
 
-    top_bullish = sorted(strong_bullish, key=lambda x: x["buy_pct"], reverse=True)[:5]
-    top_bearish = sorted(strong_bearish, key=lambda x: x["sell_pct"], reverse=True)[:5]
+    # Send alerts
+    for group, title in [(strong_bullish, "🚀 Top Strong Bullish Markets:"), (strong_bearish, "🔻 Top Strong Bearish Markets:")]:
+        if group:
+            send_alert(title)
+            for r in group:
+                msg = f"{r['trend']} {r['market']} — Buy: {r['buy_pct']:.1f}% | Sell: {r['sell_pct']:.1f}% | Net: {r['net_pct']:.1f}%\nNet Flow: {r['net']:,.0f}"
+                send_alert(msg)
 
-    if top_bullish:
-        send_alert("🚀 Top Strong Bullish Markets:")
-        for r in top_bullish:
-            msg = f"{r['trend']} {r['market']} — Buy: {r['buy_pct']:.1f}% | Sell: {r['sell_pct']:.1f}% | Net: {r['net_pct']:.1f}%\nNet Flow: {r['net']:,.0f}"
-            send_alert(msg)
-
-    if top_bearish:
-        send_alert("🔻 Top Strong Bearish Markets:")
-        for r in top_bearish:
-            msg = f"{r['trend']} {r['market']} — Buy: {r['buy_pct']:.1f}% | Sell: {r['sell_pct']:.1f}% | Net: {r['net_pct']:.1f}%\nNet Flow: {r['net']:,.0f}"
-            send_alert(msg)
-
-    # Save all markets to CSV
+    # Save CSV
     save_csv([
         [r["timestamp"], r["market"], r["buy"], r["sell"], r["net"],
          r["buy_pct"], r["sell_pct"], r["net_pct"], r["trend"],
@@ -186,7 +194,7 @@ def run_once():
         for r in results
     ])
 
-# ================== Main Loop ==================
+# ================== Entry Point ==================
 if __name__ == "__main__":
     logger.info("Starting High Volume Bot")
     while True:
