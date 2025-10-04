@@ -1,8 +1,9 @@
 import os
+import time
 import csv
 import logging
 from datetime import datetime
-
+from logging.handlers import RotatingFileHandler
 import ccxt
 import yfinance as yf
 import requests
@@ -11,27 +12,20 @@ import requests
 LOG_FILE = "bot.log"
 logger = logging.getLogger("VolumeBot")
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(LOG_FILE)
+handler = RotatingFileHandler(LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=7)
 formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# ================== Load settings ==================
-REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "15"))
-
+# ================== Settings ==================
+REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "0"))  # run once for GitHub
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
-
-TWILIO_SID = os.getenv("TWILIO_SID")
-TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
-TWILIO_FROM = os.getenv("TWILIO_FROM")
-TWILIO_TO = os.getenv("TWILIO_TO")
 
 # ================== Alerts ==================
 def send_alert(message: str):
+    """Send alerts to Telegram"""
     logger.info(message)
-
     if TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         try:
             url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -39,21 +33,7 @@ def send_alert(message: str):
         except Exception as e:
             logger.error(f"Telegram error: {e}")
 
-    if DISCORD_WEBHOOK:
-        try:
-            requests.post(DISCORD_WEBHOOK, json={"content": message})
-        except Exception as e:
-            logger.error(f"Discord error: {e}")
-
-    if TWILIO_SID and TWILIO_TOKEN and TWILIO_FROM and TWILIO_TO:
-        try:
-            from twilio.rest import Client
-            client = Client(TWILIO_SID, TWILIO_TOKEN)
-            client.messages.create(from_=TWILIO_FROM, to=TWILIO_TO, body=message)
-        except Exception as e:
-            logger.error(f"Twilio error: {e}")
-
-# ================== Volume check ==================
+# ================== Volume checks ==================
 def check_crypto(symbol="BTC/USDT", limit=200):
     exchange = ccxt.binance()
     try:
@@ -72,50 +52,48 @@ def check_stock(symbol="AAPL"):
             return 0, 0
         vol = float(data["Volume"].iloc[-1])
         change = data["Close"].iloc[-1] - data["Close"].iloc[-2]
-        if change >= 0:
-            return vol, 0
-        else:
-            return 0, vol
+        return (vol, 0) if change >= 0 else (0, vol)
     except Exception as e:
         logger.error(f"Stock fetch error {symbol}: {e}")
         return 0, 0
 
 # ================== Save CSV ==================
-def save_csv(rows, filename=None):
-    if not filename:
-        filename = f"alerts_{datetime.utcnow().strftime('%Y-%m-%d_%H-%M')}.csv"
-    file_exists = os.path.isfile(filename)
-    with open(filename, "a", newline="") as f:
+def save_csv(rows):
+    filename = f"alerts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(["timestamp", "market", "buy_volume", "sell_volume", "net_flow", "message"])
-        for row in rows:
-            writer.writerow(row)
+        writer.writerow(["timestamp", "market", "buy_volume", "sell_volume", "net_flow", "message"])
+        writer.writerows(rows)
+    return filename
 
-# ================== Main Run ==================
+# ================== Main ==================
 def run_once():
     results = []
 
-    # --- Crypto
-    for symbol in ["BTC/USDT", "ETH/USDT", "XRP/USDT"]:
+    crypto_pairs = ["BTC/USDT", "ETH/USDT", "XRP/USDT", "SOL/USDT", "ADA/USDT", "BNB/USDT", "DOGE/USDT", "LTC/USDT", "DOT/USDT"]
+    forex_pairs = ["EURUSD=X", "GBPUSD=X", "USDJPY=X", "AUDUSD=X", "USDCAD=X", "USDCHF=X", "NZDUSD=X"]
+    commodity_pairs = ["GC=F", "SI=F", "CL=F", "NG=F"]
+    stock_symbols = ["AAPL", "MSFT", "AMZN", "TSLA", "GOOG", "NVDA"]
+
+    # --- Crypto ---
+    for symbol in crypto_pairs:
         buy, sell = check_crypto(symbol)
         net = buy - sell
         msg = f"{symbol}: Buy {buy:,.0f}, Sell {sell:,.0f}, Net {net:,.0f}"
         send_alert(msg)
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
-    # --- Stocks / Commodities
-    for symbol in ["AAPL", "MSFT", "GOOG", "GC=F"]:
+    # --- Forex, Commodities, Stocks ---
+    for symbol in forex_pairs + commodity_pairs + stock_symbols:
         buy, sell = check_stock(symbol)
         net = buy - sell
         msg = f"{symbol}: Buy {buy:,.0f}, Sell {sell:,.0f}, Net {net:,.0f}"
         send_alert(msg)
         results.append([datetime.utcnow().isoformat(), symbol, buy, sell, net, msg])
 
-    save_csv(results)
-    print("✅ Bot run completed. Exiting.")
+    filename = save_csv(results)
+    logger.info(f"CSV saved as {filename}")
 
-# ================== Entry Point ==================
 if __name__ == "__main__":
     logger.info("Starting Volume Bot")
     run_once()
