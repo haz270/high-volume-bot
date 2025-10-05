@@ -9,7 +9,7 @@ import requests
 import pandas as pd
 
 # ================== Settings ==================
-REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "15"))
+REFRESH_SECONDS = int(os.getenv("REFRESH_SECONDS", "3"))
 DEBUG = True  # Set True to print debug logs to console without sending alerts
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -233,7 +233,7 @@ def run_once():
     save_to_csv(fetched_data)
 
 # ================== Entry Point ==================
-if _name_ == "_main_":
+if __name__ == "__main__":
     logger.info("Starting High Volume Bot")
     while True:
         try:
