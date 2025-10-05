@@ -3,10 +3,10 @@ name: High Volume Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/30 * * * *"   # runs every 30 minutes
 
 permissions:
-  contents: read  # no need for write if using artifacts
+  contents: write  # allow commits to the repo
 
 jobs:
   run-bot:
@@ -14,12 +14,12 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           persist-credentials: true
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -31,10 +31,20 @@ jobs:
       - name: Run the bot with debug logs
         run: |
           set -o pipefail
-          python high_volume_bot.py | tee bot_logs.txt  # output printed live and saved to file
+          python high_volume_bot.py | tee bot_logs.txt
 
+      # ✅ Upload CSVs for download (artifact)
       - name: Upload CSV files as artifact
         uses: actions/upload-artifact@v4
         with:
           name: volume-csv
           path: data/*.csv
+
+      # ✅ Commit CSVs into the repository
+      - name: Commit CSV to repo
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add data/*.csv || echo "No CSV files found"
+          git commit -m "Add CSV from bot run $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
