@@ -6,6 +6,7 @@ from datetime import datetime
 import ccxt
 import yfinance as yf
 import requests
+import pandas as pd
 
 # ================== Settings ==================
 REFRESH_MINUTES = int(os.getenv("REFRESH_MINUTES", "15"))
@@ -136,6 +137,21 @@ def save_csv(rows, filename=None):
             ])
         for row in rows:
             writer.writerow(row)
+            def save_to_csv(data_list, filename="volume_data.csv"):
+    """
+    Saves fetched data to a CSV file.
+    Appends new rows if file exists.
+    """
+    df = pd.DataFrame(data_list)
+    
+    # Add timestamp
+    df["Timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Check if file exists
+    if os.path.exists(filename):
+        df.to_csv(filename, mode='a', header=False, index=False)
+    else:
+        df.to_csv(filename, index=False)
 
 # ================== Main Loop ==================
 def run_once():
@@ -210,6 +226,22 @@ def run_once():
          f"{r['trend']} Buy: {r['buy_pct']:.1f}% | Sell: {r['sell_pct']:.1f}% | Net: {r['net_pct']:.1f}% | Value: {r['net']:,.0f}"]
         for r in results
     ])
+    fetched_data = []
+
+# Example for crypto, stocks, etc.
+symbols = ["BTC/USDT", "ETH/USDT", "AAPL", "TSLA"]  # your actual symbols
+for symbol in symbols:
+    buy = fetched_results[symbol]["buy"]   # assuming you store fetched values here
+    sell = fetched_results[symbol]["sell"]
+    net = buy - sell
+    
+    fetched_data.append({
+        "Symbol": symbol,
+        "Buy": buy,
+        "Sell": sell,
+        "Net": net
+    })
+    save_to_csv(fetched_data)
 
 # ================== Entry Point ==================
 if __name__ == "__main__":
