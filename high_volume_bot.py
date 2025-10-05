@@ -138,13 +138,14 @@ def save_to_csv(data_list, filename="volume_data.csv"):
     """
     df = pd.DataFrame(data_list)
 
-    # Add timestamp
+    # Add timestamp column
     df["Timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Check if file exists
-    if os.path.exists(filename):
+    # If file exists and is not empty, append without header
+    if os.path.exists(filename) and os.path.getsize(filename) > 0:
         df.to_csv(filename, mode='a', header=False, index=False)
     else:
+        # Create a new file with headers
         df.to_csv(filename, index=False)
 
 # ================== Main Loop ==================
