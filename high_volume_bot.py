@@ -240,13 +240,10 @@ def run_once():
 
 # ================== Entry Point ==================
 if __name__ == "__main__":
-    logger.info("Starting High Volume Bot")
-    while True:
-        try:
-            run_once()
-        except Exception as e:
-            logger.error(f"Run failed: {e}")
+    logger.info("Starting High Volume Bot (single run mode)")
+    try:
+        run_once()
+    except Exception as e:
+        logger.error(f"Run failed: {e}")
 
-        # Continuous loop — no long sleep
-        logger.info("Restarting immediately for next scan...")
-        time.sleep(3)  # adjust this delay (in seconds) as you like
+    logger.info("Bot finished successfully — CSVs saved.")
