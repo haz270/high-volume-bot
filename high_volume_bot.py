@@ -154,7 +154,7 @@ def run_once():
     crypto_symbols = [
         "BTC/USDT", "ETH/USDT", "BNB/USDT", "XRP/USDT", "SOL/USDT",
         "DOGE/USDT", "ADA/USDT", "TRX/USDT", "AVAX/USDT", "DOT/USDT",
-        "LINK/USDT", "MATIC/USDT", "SHIB/USDT", "LTC/USDT", "ATOM/USDT",
+        "LINK/USDT", "SUI/USDT", "SHIB/USDT", "LTC/USDT", "ATOM/USDT",
         "XLM/USDT", "UNI/USDT", "ICP/USDT", "APT/USDT", "NEAR/USDT"
     ]
     stock_symbols = ["AAPL", "MSFT", "GOOG", "GC=F", "CL=F", "TSLA", "NVDA"]
