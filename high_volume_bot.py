@@ -124,8 +124,9 @@ def check_stock(symbol="AAPL"):
 def save_csv(rows, filename=None):
     if not filename:
         filename = f"alerts_{datetime.now().date()}.csv"
-    file_exists = os.path.isfile(filename)
-    with open(filename, "a", newline="") as f:
+    filepath = os.path.join(DATA_DIR, filename)  # Save inside data folder
+    file_exists = os.path.isfile(filepath)
+    with open(filepath, "a", newline="") as f:
         writer = csv.writer(f)
         if not file_exists:
             writer.writerow([
@@ -137,21 +138,21 @@ def save_csv(rows, filename=None):
 
 def save_to_csv(data_list, filename="volume_data.csv"):
     """
-    Saves fetched data to a CSV file.
+    Saves fetched data to a CSV file inside DATA_DIR.
     Appends new rows if file exists.
     """
+    filepath = os.path.join(DATA_DIR, filename)  # Save inside data folder
     df = pd.DataFrame(data_list)
 
     # Add timestamp column
     df["Timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # If file exists and is not empty, append without header
-    if os.path.exists(filename) and os.path.getsize(filename) > 0:
-        df.to_csv(filename, mode='a', header=False, index=False)
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        df.to_csv(filepath, mode='a', header=False, index=False)
     else:
         # Create a new file with headers
-        df.to_csv(filename, index=False)
-
+        df.to_csv(filepath, index=False)
 # ================== Main Loop ==================
 def run_once():
     results = []
