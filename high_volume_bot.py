@@ -84,9 +84,9 @@ def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12):
                 buy_vol += volume * 0.5
                 sell_vol += volume * 0.5
         return buy_vol, sell_vol
-  except Exception as e:
-    logger.error(f"Crypto fetch error for {symbol}: {type(e).__name__} - {e}")
-    return 0, 0
+    except Exception as e:
+        logger.error(f"Crypto fetch error for {symbol}: {type(e).__name__} - {e}")
+        return 0, 0
 
 # ================== Stock / Commodities Check ==================
 def check_stock(symbol="AAPL"):
@@ -101,9 +101,9 @@ def check_stock(symbol="AAPL"):
             return vol, 0
         else:
             return 0, vol
-   except Exception as e:
-    logger.error(f"Stock fetch error for {symbol}: {type(e).__name__} - {e}")
-    return 0, 0
+    except Exception as e:
+        logger.error(f"Stock fetch error for {symbol}: {type(e).__name__} - {e}")
+        return 0, 0
 
 # ================== Save CSV ==================
 def save_csv(rows, filename=None):
