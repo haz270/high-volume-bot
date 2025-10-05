@@ -66,43 +66,60 @@ def send_alert(message: str):
             logger.error(f"Twilio error: {e}")
 
 # ================== Crypto Check ==================
-def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12):
+import time
+import ccxt
+import logging
+
+def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12, retries=3, retry_delay=5):
     exchange = ccxt.binance()
-    try:
-        logger.info(f"Fetching crypto data: {symbol}")
-        candles = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
-        buy_vol, sell_vol = 0, 0
-        for c in candles:
-            open_, high, low, close, volume = c[1], c[2], c[3], c[4], c[5]
-            if close > open_:
-                buy_vol += volume * 0.6
-                sell_vol += volume * 0.4
-            elif close < open_:
-                buy_vol += volume * 0.4
-                sell_vol += volume * 0.6
-            else:
-                buy_vol += volume * 0.5
-                sell_vol += volume * 0.5
-        return buy_vol, sell_vol
-    except Exception as e:
-        logger.error(f"Crypto fetch error for {symbol}: {type(e).__name__} - {e}")
-        return 0, 0
+    for attempt in range(retries):
+        try:
+            logging.info(f"Fetching crypto data: {symbol}")
+            candles = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
+            buy_vol, sell_vol = 0, 0
+            for c in candles:
+                open_, high, low, close, volume = c[1], c[2], c[3], c[4], c[5]
+                if close > open_:
+                    buy_vol += volume * 0.6
+                    sell_vol += volume * 0.4
+                elif close < open_:
+                    buy_vol += volume * 0.4
+                    sell_vol += volume * 0.6
+                else:
+                    buy_vol += volume * 0.5
+                    sell_vol += volume * 0.5
+            return buy_vol, sell_vol
+        except ccxt.NetworkError as e:
+            logging.warning(f"Network error for {symbol}, attempt {attempt+1}/{retries}: {e}")
+            time.sleep(retry_delay)
+        except ccxt.ExchangeError as e:
+            logging.warning(f"Exchange error for {symbol}, attempt {attempt+1}/{retries}: {e}")
+            time.sleep(retry_delay)
+        except Exception as e:
+            logging.error(f"Unexpected error for {symbol}: {type(e).__name__} - {e}")
+            return 0, 0
+    logging.warning(f"Failed to fetch crypto data for {symbol} after {retries} attempts")
+    return 0, 0
 
 # ================== Stock / Commodities Check ==================
+import yfinance as yf
+import logging
+
 def check_stock(symbol="AAPL"):
     try:
-        logger.info(f"Fetching stock data: {symbol}")
+        logging.info(f"Fetching stock data: {symbol}")
         data = yf.download(symbol, period="2d", interval="1d", progress=False, timeout=10)
-        if len(data) < 2:
+        if data is None or data.empty or len(data) < 2:
+            logging.warning(f"No data returned for {symbol}")
             return 0, 0
         vol = float(data["Volume"].iloc[-1])
-        change = data["Close"].iloc[-1] - data["Close"].iloc[-2]
+        change = float(data["Close"].iloc[-1] - data["Close"].iloc[-2])
         if change >= 0:
             return vol, 0
         else:
             return 0, vol
     except Exception as e:
-        logger.error(f"Stock fetch error for {symbol}: {type(e).__name__} - {e}")
+        logging.error(f"Stock fetch error for {symbol}: {type(e).__name__} - {e}")
         return 0, 0
 
 # ================== Save CSV ==================
