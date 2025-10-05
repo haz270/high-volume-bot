@@ -7,6 +7,10 @@ import ccxt
 import yfinance as yf
 import requests
 import pandas as pd
+import os
+
+DATA_DIR = "data"           # folder name
+os.makedirs(DATA_DIR, exist_ok=True)  # creates folder if it doesn’t exist
 
 # ================== Settings ==================
 REFRESH_SECONDS = int(os.getenv("REFRESH_SECONDS", "3"))
