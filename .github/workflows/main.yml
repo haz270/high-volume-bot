@@ -34,7 +34,7 @@ jobs:
           python high_volume_bot.py | tee bot_logs.txt  # output printed live and saved to file
 
       - name: Upload CSV files as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: volume-csv
           path: data/*.csv
