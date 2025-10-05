@@ -233,14 +233,14 @@ def run_once():
     save_to_csv(fetched_data)
 
 # ================== Entry Point ==================
-if __name__ == "__main__":
+if _name_ == "_main_":
     logger.info("Starting High Volume Bot")
     while True:
         try:
             run_once()
         except Exception as e:
             logger.error(f"Run failed: {e}")
-        if REFRESH_MINUTES <= 0:
-            break
-        logger.info(f"Sleeping {REFRESH_MINUTES} minutes...")
-        time.sleep(REFRESH_MINUTES * 60)
+
+        # Continuous loop — no long sleep
+        logger.info("Restarting immediately for next scan...")
+        time.sleep(3)  # adjust this delay (in seconds) as you like
