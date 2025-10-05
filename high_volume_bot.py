@@ -67,10 +67,6 @@ def send_alert(message: str):
             logger.error(f"Twilio error: {e}")
 
 # ================== Crypto Check ==================
-import time
-import ccxt
-import logging
-
 def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12, retries=3, retry_delay=5):
     exchange = ccxt.kucoin()
     for attempt in range(retries):
@@ -103,9 +99,6 @@ def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12, retries=3, retry_d
     return 0, 0
 
 # ================== Stock / Commodities Check ==================
-import yfinance as yf
-import logging
-
 def check_stock(symbol="AAPL"):
     try:
         logging.info(f"Fetching stock data: {symbol}")
@@ -137,16 +130,17 @@ def save_csv(rows, filename=None):
             ])
         for row in rows:
             writer.writerow(row)
-            def save_to_csv(data_list, filename="volume_data.csv"):
+
+def save_to_csv(data_list, filename="volume_data.csv"):
     """
     Saves fetched data to a CSV file.
     Appends new rows if file exists.
     """
     df = pd.DataFrame(data_list)
-    
+
     # Add timestamp
     df["Timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
+
     # Check if file exists
     if os.path.exists(filename):
         df.to_csv(filename, mode='a', header=False, index=False)
@@ -166,6 +160,8 @@ def run_once():
     stock_symbols = ["AAPL", "MSFT", "GOOG", "GC=F", "CL=F", "TSLA", "NVDA"]
 
     all_symbols = crypto_symbols + stock_symbols
+
+    fetched_data = []
 
     for symbol in all_symbols:
         try:
@@ -207,6 +203,14 @@ def run_once():
             "trend": trend_emoji
         })
 
+        # Prepare data for CSV
+        fetched_data.append({
+            "Symbol": symbol,
+            "Buy": buy,
+            "Sell": sell,
+            "Net": net
+        })
+
     # Top 5 bullish/bearish
     strong_bullish = sorted([r for r in results if r["trend"] == "🟢"], key=lambda x: x["buy_pct"], reverse=True)[:5]
     strong_bearish = sorted([r for r in results if r["trend"] == "🔴"], key=lambda x: x["sell_pct"], reverse=True)[:5]
@@ -219,28 +223,13 @@ def run_once():
                 msg = f"{r['trend']} {r['market']} — Buy: {r['buy_pct']:.1f}% | Sell: {r['sell_pct']:.1f}% | Net: {r['net_pct']:.1f}%\nNet Flow: {r['net']:,.0f}"
                 send_alert(msg)
 
-    # Save CSV
+    # Save CSVs
     save_csv([
         [r["timestamp"], r["market"], r["buy"], r["sell"], r["net"],
          r["buy_pct"], r["sell_pct"], r["net_pct"], r["trend"],
          f"{r['trend']} Buy: {r['buy_pct']:.1f}% | Sell: {r['sell_pct']:.1f}% | Net: {r['net_pct']:.1f}% | Value: {r['net']:,.0f}"]
         for r in results
     ])
-    fetched_data = []
-
-# Example for crypto, stocks, etc.
-symbols = ["BTC/USDT", "ETH/USDT", "AAPL", "TSLA"]  # your actual symbols
-for symbol in symbols:
-    buy = fetched_results[symbol]["buy"]   # assuming you store fetched values here
-    sell = fetched_results[symbol]["sell"]
-    net = buy - sell
-    
-    fetched_data.append({
-        "Symbol": symbol,
-        "Buy": buy,
-        "Sell": sell,
-        "Net": net
-    })
     save_to_csv(fetched_data)
 
 # ================== Entry Point ==================
