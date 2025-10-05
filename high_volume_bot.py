@@ -71,7 +71,7 @@ import ccxt
 import logging
 
 def check_crypto(symbol="BTC/USDT", timeframe="1h", limit=12, retries=3, retry_delay=5):
-    exchange = ccxt.bybit()
+    exchange = ccxt.kucoin()
     for attempt in range(retries):
         try:
             logging.info(f"Fetching crypto data: {symbol}")
